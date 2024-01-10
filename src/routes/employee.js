@@ -9,10 +9,10 @@ import{
 
 const router = express.Router();
 
-router.post("", create_employee);
-router.get("", read_employee_all);
-router.get("", read_employee_info);
-router.patch("", update_employee);
-router.delete("", delete_employee);
+router.post("/employee", create_employee);
+router.get("/employee/view", read_employee_all);
+router.get("/employee/view/:id", read_employee_info);
+router.patch("/employee/update/:id", update_employee);
+router.delete("/employee/delete/:id", delete_employee);
 
 export default router;
