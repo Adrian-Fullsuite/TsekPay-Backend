@@ -22,18 +22,18 @@ const createCompany = (req, res) => {
     }
 }
 
-const readCompany = async (req, res) => {
+const readCompanyInfo = async (req, res) => {
     if(checkAuthorization(req.headers)){
+        const { id } = req.body;
         const { rows } = await db.query(
-            "SELECT * FROM company"
+            "SELECT * FROM company WHERE id = $1",
+            [id]
         );        
-        result
-            .then((response) => {
-                res.sendStatus(200)
-            })
-            .catch((erro) =>{
-                res.sendStatus(500);
-            });
+        if (sanitizeObject(rows)){
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(500);
+        }
     } else {
         res.sendStatus(401);
     }
