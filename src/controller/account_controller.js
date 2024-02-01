@@ -35,6 +35,19 @@ const createAccount = (req, res) => {
     }
 };
 
+const readAccountAll = async (req, res) => {
+    if (checkAuthorization(req.headers)) {
+      const { rows } = await db.query("SELECT * FROM account");
+      if (rows) {
+        res.sendStatus(200).json(rows);
+      } else {
+        res.sendStatus(500);
+      }
+    } else {
+      res.sendStatus(401);
+    }
+  };
+
 const readAccountInfo = async (req, res) => {
     if(checkAuthorization(req.headers)){
         const { id } = req.params;
@@ -43,7 +56,7 @@ const readAccountInfo = async (req, res) => {
             [id]
         );
         if (sanitizeObject(rows)){
-            res.sendStatus(200);
+            res.sendStatus(200).json(rows);
         } else {
             res.sendStatus(500);
         }
@@ -56,7 +69,7 @@ const updateAccount = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { email, first_name, middle_name, last_name, date_of_birth, password, account_type_id, id } = req.body;
         const result = db.query(
-            "UPDATE account SET email = $1, first_name = $2, middle_name = $3, last_name = $4, date_of_birth = $5, password = $6, account_type_id = $7 WHERE id = $7",
+            "UPDATE account SET email = $1, first_name = $2, middle_name = $3, last_name = $4, date_of_birth = $5, password = $6, account_type_id = $7 WHERE id = $8",
             [email, first_name, middle_name, last_name, date_of_birth, password, account_type_id, id]
         );
         result
@@ -90,4 +103,4 @@ const deleteAccount = (req, res) => {
     }
 };
 
-export {createAccount, readAccountInfo, updateAccount, deleteAccount};
+export {createAccount, readAccountAll, readAccountInfo, updateAccount, deleteAccount};
