@@ -22,6 +22,19 @@ const createCompany = (req, res) => {
     }
 }
 
+const readCompanyAll = async (req, res) => {
+    if (checkAuthorization(req.headers)) {
+      const { rows } = await db.query("SELECT * FROM company");
+      if (rows) {
+        res.sendStatus(200).json(rows);
+      } else {
+        res.sendStatus(500);
+      }
+    } else {
+      res.sendStatus(401);
+    }
+};
+
 const readCompanyInfo = async (req, res) => {
     if(checkAuthorization(req.headers)){
         const { id } = req.body;
@@ -77,4 +90,4 @@ const deleteCompany = (req, res) => {
     }
 }
 
-export { createCompany, readCompany, updateCompany, deleteCompany };
+export { createCompany, readCompanyAll, readCompanyInfo, updateCompany, deleteCompany };

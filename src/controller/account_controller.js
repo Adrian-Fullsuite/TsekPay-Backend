@@ -46,7 +46,7 @@ const readAccountAll = async (req, res) => {
     } else {
       res.sendStatus(401);
     }
-  };
+};
 
 const readAccountInfo = async (req, res) => {
     if(checkAuthorization(req.headers)){
