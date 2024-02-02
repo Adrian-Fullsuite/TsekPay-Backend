@@ -10,7 +10,7 @@ const db = await mysql.createConnection({
 
 
 // Create a connection pool
-const pool = mysql.createPool(dbConfig);
+const pool = mysql.createPool(db);
 
 // Exporting the pool to be used in other modules
 module.exports = pool.promise();

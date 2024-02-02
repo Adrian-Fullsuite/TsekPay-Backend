@@ -1,4 +1,4 @@
-import db from "../database/db.js";
+import pool from "../database/db.js";
 import { sanitizeObject } from "../utils/sanitize.js";
 import checkAuthorization from "../utils/authorization.js";
 import { response } from "express";
@@ -6,7 +6,7 @@ import { response } from "express";
 const createCompany = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { account_id, name, address } = req.body;
-        const result = db.query(
+        const result = pool.query(
             "INSERT INTO company(account_id, name, address) VALUES($1, $2, $3)",
             [account_id, name, address]
         );        
@@ -24,7 +24,7 @@ const createCompany = (req, res) => {
 
 const readCompanyAll = async (req, res) => {
     if (checkAuthorization(req.headers)) {
-      const { rows } = await db.query("SELECT * FROM company");
+      const { rows } = await pool.query("SELECT * FROM company");
       if (rows) {
         res.sendStatus(200).json(rows);
       } else {
@@ -38,7 +38,7 @@ const readCompanyAll = async (req, res) => {
 const readCompanyInfo = async (req, res) => {
     if(checkAuthorization(req.headers)){
         const { id } = req.body;
-        const { rows } = await db.query(
+        const { rows } = await pool.query(
             "SELECT * FROM company WHERE id = $1",
             [id]
         );        
@@ -55,7 +55,7 @@ const readCompanyInfo = async (req, res) => {
 const updateCompany = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { account_id, name, address, id } = req.body;
-        const result = db.query(
+        const result = pool.query(
             "UPDATE company SET account_id = $1, name = $2, address = $3 WHERE id = $4",
             [account_id, name, address, id]
         );
@@ -74,7 +74,7 @@ const updateCompany = (req, res) => {
 const deleteCompany = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { id } = req.body;
-        const result = db.query(
+        const result = pool.query(
             "DELETE FROM company WHERE id = $1",
             [id]
         );
