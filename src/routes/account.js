@@ -1,4 +1,4 @@
-import express from express;
+import express from "express";
 import{
     createAccount,
     readAccountAll,
@@ -7,7 +7,7 @@ import{
     deleteAccount
 } from "../controller/account_controller.js";
 
-const router = express.router();
+const router = express.Router();
 
 router.post("/account", createAccount);
 router.get("/account/view", readAccountAll);

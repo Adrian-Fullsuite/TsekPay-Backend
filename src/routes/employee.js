@@ -1,4 +1,4 @@
-import express from express;
+import express from "express";
 import{
     createEmployee,
     readEmployeeAll,
@@ -7,7 +7,7 @@ import{
     deleteEmployee
 } from "../controller/employee_controller.js";
 
-const router = express.router();
+const router = express.Router();
 
 router.post("/employee", createEmployee);
 router.get("/employee/view", readEmployeeAll);
