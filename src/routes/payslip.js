@@ -1,4 +1,4 @@
-import express from express;
+import express from "express";
 import{
     createPayslip,
     readPayslipAll,
@@ -7,7 +7,7 @@ import{
     deletePayslip
 } from "../controller/payslip_controller.js";
 
-const router = express.router();
+const router = express.Router();
 
 router.post("/payslip", createPayslip);
 router.get("/payslip/view", readPayslipAll);

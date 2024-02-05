@@ -1,11 +1,11 @@
-import pool from "../database/db.js"
+import db from "../database/db.js"
 import bcryptjs from "bcryptjs"
 import { encodeToken } from "../utils/token"
 
 const accountAuth = ( req, res ) => {
     const { email, password } = req.body;
 
-  const result = pool.query("SELECT password FROM account WHERE email = $1", 
+  const result = db.query("SELECT password FROM account WHERE email = $1", 
     [email]
   );
 

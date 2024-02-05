@@ -13,7 +13,7 @@ app.use(employee);
 app.use(payslip);
 
 app.get("/", (req, res) => {
-    res.sendStatus(200);
-  });
+  res.sendStatus(200);
+});
   
 export default app;

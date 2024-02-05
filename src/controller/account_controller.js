@@ -1,5 +1,5 @@
-import bcryptjs from bcryptjs;
-import pool from "../database/db.js";
+import bcryptjs from "bcryptjs";
+import db from "../database/db.js";
 import { sanitizeObject } from "../utils/sanitize.js";
 import checkAuthorization from "../utils/authorization.js";
 import { response } from "express";
@@ -13,7 +13,7 @@ const createAccount = (req, res) => {
                 if(err){
                     throw new Error(err);
                 } else {
-                    const result = pool.query(
+                    const result = db.query(
                         "INSERT INTO accounts( email, first_name, middle_name, last_name, date_of_birth, password, account_type_id) VALUES($1, $2, $3, $4, $5, $6, $7)",
                         [email, first_name, middle_name, last_name, date_of_birth, hash, account_type_id]
                     );
@@ -37,7 +37,7 @@ const createAccount = (req, res) => {
 
 const readAccountAll = async (req, res) => {
     if (checkAuthorization(req.headers)) {
-      const { rows } = await pool.query("SELECT * FROM account");
+      const { rows } = await db.query("SELECT * FROM account");
       if (rows) {
         res.sendStatus(200).json(rows);
       } else {
@@ -51,7 +51,7 @@ const readAccountAll = async (req, res) => {
 const readAccountInfo = async (req, res) => {
     if(checkAuthorization(req.headers)){
         const { id } = req.params;
-        const { rows } = await pool.query(
+        const { rows } = await db.query(
             "SELECT * FROM account WHERE id = $1",
             [id]
         );
@@ -68,7 +68,7 @@ const readAccountInfo = async (req, res) => {
 const updateAccount = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { email, first_name, middle_name, last_name, date_of_birth, password, account_type_id, id } = req.body;
-        const result = pool.query(
+        const result = db.query(
             "UPDATE account SET email = $1, first_name = $2, middle_name = $3, last_name = $4, date_of_birth = $5, password = $6, account_type_id = $7 WHERE id = $8",
             [email, first_name, middle_name, last_name, date_of_birth, password, account_type_id, id]
         );
@@ -87,7 +87,7 @@ const updateAccount = (req, res) => {
 const deleteAccount = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { id } = req.params;
-        const result = pool.query(
+        const result = db.query(
             "DELETE FROM account WHERE id = $1",
             [id]
         );
