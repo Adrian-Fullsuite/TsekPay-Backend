@@ -1,35 +1,31 @@
-import db from "../database/db.js"
-import bcryptjs from "bcryptjs"
-import { encodeToken } from "../utils/token"
+import db from "../database/db.js";
+import bcryptjs from "bcryptjs";
+import { encodeToken } from "../utils/token.js";
 
-const accountAuth = ( req, res ) => {
+const accountAuth = async (req, res) => {
     const { email, password } = req.body;
 
-  const result = db.query("SELECT password FROM account WHERE email = $1", 
-    [email]
-  );
-
-  result.then((response) => {
-    const { rows } = response;
-
-    if (rows.length == 0) {
-      res.sendStatus(500);
-      return;
-    }
-
     try {
-      bcryptjs.compare(password, rows[0].password, (err, isPasswordTrue) => {
-        let token;
-        isPasswordTrue
-          ? (token = encodeToken("id", rows[0].id))
-          : res.sendStatus(500);
-        res.send(token);
-      });
+        const [rows] = await db.promise().query("SELECT password FROM account WHERE email = ?", 
+          [email]
+        );
+
+        if (rows.length == 0) {
+            res.sendStatus(500);
+            return;
+        }
+
+        const isPasswordTrue = await bcryptjs.compare(password, rows[0].password);
+        if (isPasswordTrue) {
+            const token = encodeToken("id", rows[0].id);
+            res.json({ token });
+        } else {
+            res.sendStatus(500);
+        }
     } catch (error) {
-      console.error(error);
-      res.sendStatus(500);
+        console.error(error);
+        res.sendStatus(500);
     }
-  });
 };
 
 export { accountAuth };
