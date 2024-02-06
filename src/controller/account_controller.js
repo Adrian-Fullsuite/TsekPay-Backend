@@ -2,34 +2,33 @@ import bcryptjs from "bcryptjs";
 import db from "../database/db.js";
 import { sanitizeObject } from "../utils/sanitize.js";
 import checkAuthorization from "../utils/authorization.js";
-import { response } from "express";
 
 const createAccount = (req, res) => {
-    const { email, first_name, middle_name, last_name, date_of_birth, password, account_type_id } = req.body;
+    const { email, first_name, middle_name, last_name, date_of_birth, password, account_type } = req.body;
     const saltRounds = process.env.SALT_ROUNDS;
-    try{
-        bcryptjs.genSalt(saltRounds, (err, salt) => {
-            bcryptjs.has(password, salt, async (err, hash) => {
-                if(err){
+
+    try {
+        bcryptjs.genSalt(Number(saltRounds), (err, salt) => {
+            bcryptjs.hash(password, salt, async (err, hash) => {
+                if (err) {
                     throw new Error(err);
                 } else {
                     const result = db.query(
-                        "INSERT INTO accounts( email, first_name, middle_name, last_name, date_of_birth, password, account_type_id) VALUES($1, $2, $3, $4, $5, $6, $7)",
-                        [email, first_name, middle_name, last_name, date_of_birth, hash, account_type_id]
+                        "INSERT INTO account(email, first_name, middle_name, last_name, date_of_birth, password, account_type) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                        [email, first_name, middle_name, last_name, date_of_birth, hash, account_type],
+                        (error, response) => {
+                            if (error) {
+                                console.error(error);
+                                res.sendStatus(500);
+                            } else {
+                                res.sendStatus(200);
+                            }
+                        }
                     );
-
-                    result
-                        .then((response) => {
-                            res.sendStatus(200);
-                        })
-                        .catch((error) => {
-                            console.error(error);
-                            res.sendStatus(500);
-                        });
                 }
-            })
+            });
         });
-    } catch (error){
+    } catch (error) {
         console.log(error);
         res.sendStatus(500);
     }
