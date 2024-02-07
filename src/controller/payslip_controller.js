@@ -5,17 +5,22 @@ import checkAuthorization from "../utils/authorization.js";
 const createPayslip = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout } = req.body;
-        const result = db.query(
-            "payslip (employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout) VALUES($1, $2, $3, $4, $5, $6, $7)",
-            [employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout]
-        );        
-        result
-            .then((response) => {
-                res.sendStatus(200)
-            })
-            .catch((erro) =>{
-                res.sendStatus(500);
-            });
+
+        // Serialize the payables object to a JSON string
+        const serializedPayables = JSON.stringify(payables);
+
+        db.query(
+            "INSERT INTO payslip (employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout) VALUES(?, ?, ?, ?, ?, ?, ?)",
+            [employee_id, start_date, end_date, serializedPayables, total_deductions, net_salary, date_of_payout],
+            (error, response) => {
+                if (error) {
+                    console.error(error);
+                    res.sendStatus(500);
+                } else {
+                    res.sendStatus(200);
+                }
+            }
+        );
     } else {
         res.sendStatus(401);
     }
@@ -23,12 +28,15 @@ const createPayslip = (req, res) => {
 
 const readPayslipAll = async (req, res) => {
     if (checkAuthorization(req.headers)) {
-      const { rows } = await db.query("SELECT * FROM payslip");
-      if (rows) {
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(500);
-      }
+        db.query("SELECT * FROM payslip", (error, result) => {
+            const rows = result;
+            console.log(rows);
+            if (rows) {
+                res.sendStatus(200);
+            } else {
+                res.sendStatus(500);
+            }
+        });
     } else {
       res.sendStatus(401);
     }
@@ -36,16 +44,18 @@ const readPayslipAll = async (req, res) => {
 
 const readPayslipInfo = async (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { id } = req.body;
-        const { rows } = await db.query(
-            "SELECT * FROM payslip WHERE id = $1",
-            [id]
-        );        
-        if (sanitizeObject(rows)){
-            res.sendStatus(200);
-        } else {
-            res.sendStatus(500);
-        }
+        const { id } = req.params;
+        db.query(
+            "SELECT * FROM payslip WHERE id = ?",
+            [id], 
+            (error, results, fields) => {
+                const rows = results;
+                if (sanitizeObject(rows)) {
+                    res.sendStatus(200);
+                } else {
+                    res.sendStatus(500);
+                }
+            });
     } else {
         res.sendStatus(401);
     }
@@ -53,18 +63,24 @@ const readPayslipInfo = async (req, res) => {
 
 const updatePayslip = (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout, id } = req.body;
-        const result = db.query(
-            "UPDATE payslip SET employee_id = $1, start_date = $2, end_date = $3, payables = $4, total_deductions = $5, net_salary = $6, date_of_payout = $7 WHERE id = $8",
-            [employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout, id]
+        const { employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout } = req.body;
+        const { id } = req.params;
+
+        // Serialize the payables object to a JSON string
+        const serializedPayables = JSON.stringify(payables);
+
+        db.query(
+            "UPDATE payslip SET employee_id = ?, start_date = ?, end_date = ?, payables = ?, total_deductions = ?, net_salary = ?, date_of_payout = ? WHERE id = ?",
+            [employee_id, start_date, end_date, serializedPayables, total_deductions, net_salary, date_of_payout, id],
+            (error, result) => {
+                if (error) {
+                    console.log(error);
+                    res.sendStatus(500);
+                } else {
+                    res.sendStatus(200);
+                }
+            }
         );
-        result
-            .then((response) => {
-                res.sendStatus(200)
-            })
-            .catch((erro) =>{
-                res.sendStatus(500);
-            });
     } else {
         res.sendStatus(401);
     }
@@ -72,18 +88,17 @@ const updatePayslip = (req, res) => {
 
 const deletePayslip = (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { id } = req.body;
-        const result = db.query(
-            "DELETE FROM payslip WHERE id = $1",
-            [id]
-        );
-        result
-            .then((response) => {
-                res.sendStatus(200)
-            })
-            .catch((erro) =>{
+        const { id } = req.params;
+        db.query(
+        "DELETE FROM payslip WHERE id = ?",
+        [id], (error, result) => {
+            if (error) {
+                console.error(error);
                 res.sendStatus(500);
-            });
+                return;
+            }
+            res.sendStatus(200);
+        });
     } else {
         res.sendStatus(401);
     }
