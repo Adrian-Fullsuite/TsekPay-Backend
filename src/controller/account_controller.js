@@ -68,19 +68,31 @@ const readAccountInfo = (req, res) => {
 
 
 const updateAccount = (req, res) => {
-    if(checkAuthorization(req.headers)){
-        const { email, first_name, middle_name, last_name, date_of_birth, password, account_type_id, id } = req.body;
-        const result = db.query(
-            "UPDATE account SET email = $1, first_name = $2, middle_name = $3, last_name = $4, date_of_birth = $5, password = $6, account_type_id = $7 WHERE id = $8",
-            [email, first_name, middle_name, last_name, date_of_birth, password, account_type_id, id]
-        );
-        result
-            .then((response) => {
-                res.sendStatus(200);
-            })
-            .catch((error) =>{
-                res.sendStatus(500);
+    if (checkAuthorization(req.headers)) {
+        const { email, first_name, middle_name, last_name, date_of_birth, password, account_type } = req.body;
+        const { id } = req.params;
+        const saltRounds = process.env.SALT_ROUNDS;
+        bcryptjs.genSalt(Number(saltRounds), (err, salt) => {
+            bcryptjs.hash(password, salt, async (err, hash) => {
+                if (err) {
+                    throw new Error(err);
+                } else {
+                    db.query(
+                        "UPDATE account SET email = ?, first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, password = ?, account_type = ? WHERE id = ?",
+                        [email, first_name, middle_name, last_name, date_of_birth, hash, account_type, id],
+                        (error, result) => {
+                            if (error) {
+                                console.error(error);
+                                res.sendStatus(500);
+                            } else {
+                                res.sendStatus(200);
+                            }
+                        }
+                    );
+                }
             });
+        });
+        
     } else {
         res.sendStatus(401);
     }
@@ -89,17 +101,14 @@ const updateAccount = (req, res) => {
 const deleteAccount = (req, res) => {
     if(checkAuthorization(req.headers)){
         const { id } = req.params;
-        const result = db.query(
-            "DELETE FROM account WHERE id = $1",
-            [id]
-        );
-        result
-            .then((response) => {
-                res.sendStatus(200);
-            })
-            .catch((error) => {
+        db.query("DELETE FROM account WHERE id = ?", [id], (error, result) => {
+            if (error) {
+                console.error(error);
                 res.sendStatus(500);
-            })
+                return;
+            }
+            res.sendStatus(200);
+        });
     } else {
         res.sendStatus(401);
     }
