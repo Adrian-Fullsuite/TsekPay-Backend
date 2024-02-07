@@ -36,33 +36,36 @@ const createAccount = (req, res) => {
 
 const readAccountAll = async (req, res) => {
     if (checkAuthorization(req.headers)) {
-      const { rows } = await db.query("SELECT * FROM account");
-      if (rows) {
-        res.sendStatus(200).json(rows);
-      } else {
-        res.sendStatus(500);
-      }
+        db.query("SELECT * FROM account", (error, result) => {
+            const rows = result;
+            console.log(rows);
+            if (rows) {
+              res.sendStatus(200);
+            } else {
+              res.sendStatus(500);
+            }
+        });
     } else {
       res.sendStatus(401);
     }
 };
 
-const readAccountInfo = async (req, res) => {
-    if(checkAuthorization(req.headers)){
+const readAccountInfo = (req, res) => {
+    if (checkAuthorization(req.headers)) {
         const { id } = req.params;
-        const { rows } = await db.query(
-            "SELECT * FROM account WHERE id = $1",
-            [id]
-        );
-        if (sanitizeObject(rows)){
-            res.sendStatus(200).json(rows);
-        } else {
-            res.sendStatus(500);
-        }
+        db.query("SELECT * FROM account WHERE id = ?", [id], (error, results, fields) => {
+            const rows = results;
+            if (sanitizeObject(rows)) {
+                res.sendStatus(200);
+            } else {
+                res.sendStatus(500);
+            }
+        });
     } else {
         res.sendStatus(401);
     }
 };
+
 
 const updateAccount = (req, res) => {
     if(checkAuthorization(req.headers)){
