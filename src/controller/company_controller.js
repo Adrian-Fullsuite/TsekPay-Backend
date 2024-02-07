@@ -61,8 +61,8 @@ const updateCompany = (req, res) => {
         const { account_id, name, address } = req.body;
         const { id } = req.params;
         db.query(
-            "UPDATE company SET  name = ?, address = ? WHERE id = ?",
-            [name, address, id],
+            "UPDATE company SET account_id = ?, name = ?, address = ? WHERE id = ?",
+            [account_id, name, address, id],
             (error, result) => {
                 if (error) {
                     console.error(error);
