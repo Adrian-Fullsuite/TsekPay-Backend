@@ -9,8 +9,8 @@ const accountAuth = async (req, res) => {
         const [rows] = await db.promise().query("SELECT password FROM account WHERE email = ?", 
           [email]
         );
-
         if (rows.length == 0) {
+            console.log("Account does not exists!");
             res.sendStatus(500);
             return;
         }
@@ -19,6 +19,10 @@ const accountAuth = async (req, res) => {
         if (isPasswordTrue) {
             const token = encodeToken("id", rows[0].id);
             res.json({ token });
+            req.session.user = {
+                id: rows[0].id,
+                email: email
+            };
         } else {
             res.sendStatus(500);
         }
