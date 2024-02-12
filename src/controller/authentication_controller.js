@@ -6,7 +6,7 @@ const accountAuth = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const [rows] = await db.promise().query("SELECT password FROM account WHERE email = ?", 
+        const [rows] = await db.promise().query("SELECT * FROM account WHERE email = ?", 
           [email]
         );
         if (rows.length == 0) {
@@ -14,11 +14,15 @@ const accountAuth = async (req, res) => {
             res.sendStatus(500);
             return;
         }
-
+        const first_name = rows[0].first_name;
+        const middle_name = rows[0].middle_name;
+        const last_name  = rows[0].last_name;
+        const account_type = rows[0].account_type;
+        
         const isPasswordTrue = await bcryptjs.compare(password, rows[0].password);
         if (isPasswordTrue) {
             const token = encodeToken("id", rows[0].id);
-            res.json({ token });
+            res.json({ token, email, first_name, middle_name, last_name, account_type });
             req.session.user = {
                 id: rows[0].id,
                 email: email
