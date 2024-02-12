@@ -3,7 +3,6 @@ import session from "express-session";
 import account from "./routes/account.js";
 import authentication from "./routes/authentication.js";
 import company from "./routes/company.js";
-import employee from "./routes/employee.js";
 import payslip from "./routes/payslip.js";
 import cors from "cors";
 
@@ -19,7 +18,6 @@ app.use(cors());
 app.use(account);
 app.use(authentication);
 app.use(company);
-app.use(employee);
 app.use(payslip);
 
 app.get("/", (req, res) => {

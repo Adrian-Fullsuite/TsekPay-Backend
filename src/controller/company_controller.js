@@ -4,10 +4,10 @@ import checkAuthorization from "../utils/authorization.js";
 
 const createCompany = (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { account_id, name, address } = req.body;
+        const { account_id, name, logo, address } = req.body;
         db.query(
-            "INSERT INTO company(account_id, name, address) VALUES(?, ?, ?)",
-            [account_id, name, address],
+            "INSERT INTO company(account_id, name, logo, address) VALUES(?, ?, ?, ?)",
+            [account_id, name, logo, address],
             (error, response) => {
                 if (error) {
                     console.error(error);
@@ -28,7 +28,7 @@ const readCompanyAll = async (req, res) => {
             const rows = result;
             console.log(rows);
             if (rows) {
-                res.sendStatus(200);
+                res.sendStatus(200).json(rows);
             } else {
                 res.sendStatus(500);
             }
@@ -58,11 +58,11 @@ const readCompanyInfo = async (req, res) => {
 
 const updateCompany = (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { account_id, name, address } = req.body;
+        const { account_id, name, logo, address } = req.body;
         const { id } = req.params;
         db.query(
-            "UPDATE company SET account_id = ?, name = ?, address = ? WHERE id = ?",
-            [account_id, name, address, id],
+            "UPDATE company SET account_id = ?, name = ?, logo = ?, address = ? WHERE id = ?",
+            [account_id, name, logo, address, id],
             (error, result) => {
                 if (error) {
                     console.error(error);

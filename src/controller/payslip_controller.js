@@ -4,14 +4,14 @@ import checkAuthorization from "../utils/authorization.js";
 
 const createPayslip = (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout } = req.body;
+        const { company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout } = req.body;
 
         // Serialize the payables object to a JSON string
         const serializedPayables = JSON.stringify(payables);
 
         db.query(
-            "INSERT INTO payslip (employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout) VALUES(?, ?, ?, ?, ?, ?, ?)",
-            [employee_id, start_date, end_date, serializedPayables, total_deductions, net_salary, date_of_payout],
+            "INSERT INTO payslip (company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout],
             (error, response) => {
                 if (error) {
                     console.error(error);
@@ -63,15 +63,15 @@ const readPayslipInfo = async (req, res) => {
 
 const updatePayslip = (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { employee_id, start_date, end_date, payables, total_deductions, net_salary, date_of_payout } = req.body;
+        const { company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout } = req.body;
         const { id } = req.params;
 
         // Serialize the payables object to a JSON string
         const serializedPayables = JSON.stringify(payables);
 
         db.query(
-            "UPDATE payslip SET employee_id = ?, start_date = ?, end_date = ?, payables = ?, total_deductions = ?, net_salary = ?, date_of_payout = ? WHERE id = ?",
-            [employee_id, start_date, end_date, serializedPayables, total_deductions, net_salary, date_of_payout, id],
+            "UPDATE payslip SET company_id, employee_id, first_name, middle_name, last_name, email = ?, start_date = ?, end_date = ?, payables = ?, total_earnings = ?, total_deductions = ?, net_salary = ?, date_of_payout = ? WHERE id = ?",
+            [company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout],
             (error, result) => {
                 if (error) {
                     console.log(error);
