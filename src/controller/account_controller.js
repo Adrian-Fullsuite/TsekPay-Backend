@@ -29,18 +29,17 @@ const createAccount = (req, res) => {
             });
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.sendStatus(500);
     }
 };
 
 const readAccountAll = async (req, res) => {
     if (checkAuthorization(req.headers)) {
-        db.query("SELECT * FROM account", (error, result) => {
+        db.query("SELECT id, email, first_name, middle_name, last_name, date_of_birth, account_type FROM account", (error, result) => {
             const rows = result;
-            console.log(rows);
             if (rows) {
-              res.sendStatus(200);
+                res.json({rows});
             } else {
               res.sendStatus(500);
             }
@@ -69,34 +68,43 @@ const readAccountInfo = (req, res) => {
 
 const updateAccount = (req, res) => {
     if (checkAuthorization(req.headers)) {
-        const { email, first_name, middle_name, last_name, date_of_birth, password, account_type } = req.body;
-        const { id } = req.params;
-        const saltRounds = process.env.SALT_ROUNDS;
-        bcryptjs.genSalt(Number(saltRounds), (err, salt) => {
-            bcryptjs.hash(password, salt, async (err, hash) => {
-                if (err) {
-                    throw new Error(err);
+        try {
+            const { email, first_name, middle_name, last_name, date_of_birth, password, account_type } = req.body;
+            const { id } = req.params;
+            const saltRounds = process.env.SALT_ROUNDS;
+            const formattedDate = new Date(date_of_birth).toLocaleDateString('en-CA'); 
+        
+            let hash = null;
+        
+            if (password !== null) {
+                const salt = bcryptjs.genSaltSync(Number(saltRounds));
+                hash = bcryptjs.hashSync(password, salt);
+            }
+        
+            const updateQuery = password !== null
+                ? "UPDATE account SET email = ?, first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, password = ?, account_type = ? WHERE id = ?"
+                : "UPDATE account SET email = ?, first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, account_type = ? WHERE id = ?";
+        
+            const updateParams = password !== null
+                ? [email, first_name, middle_name, last_name, formattedDate, hash, account_type, id]
+                : [email, first_name, middle_name, last_name, formattedDate, account_type, id];
+        
+            db.query(updateQuery, updateParams, (error, result) => {
+                if (error) {
+                    console.error(error);
+                    res.sendStatus(500);
                 } else {
-                    db.query(
-                        "UPDATE account SET email = ?, first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, password = ?, account_type = ? WHERE id = ?",
-                        [email, first_name, middle_name, last_name, date_of_birth, hash, account_type, id],
-                        (error, result) => {
-                            if (error) {
-                                console.error(error);
-                                res.sendStatus(500);
-                            } else {
-                                res.sendStatus(200);
-                            }
-                        }
-                    );
+                    res.sendStatus(200);
                 }
             });
-        });
-        
+        } catch (error) {
+            console.error(error);
+        }        
     } else {
         res.sendStatus(401);
     }
 };
+
 
 const deleteAccount = (req, res) => {
     if(checkAuthorization(req.headers)){
