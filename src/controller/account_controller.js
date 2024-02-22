@@ -65,6 +65,15 @@ const readAccountInfo = (req, res) => {
     }
 };
 
+function formatDateString(inputDateString) {
+    const inputDate = new Date(inputDateString);
+    
+    const year = inputDate.getFullYear();
+    const month = (inputDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = inputDate.getDate().toString().padStart(2, "0");
+  
+    return `${year}-${month}-${day}`;
+}  
 
 const updateAccount = (req, res) => {
     if (checkAuthorization(req.headers)) {
@@ -72,20 +81,20 @@ const updateAccount = (req, res) => {
             const { email, first_name, middle_name, last_name, date_of_birth, password, account_type } = req.body;
             const { id } = req.params;
             const saltRounds = process.env.SALT_ROUNDS;
-            const formattedDate = new Date(date_of_birth).toLocaleDateString('en-CA'); 
+            const formattedDate = formatDateString(date_of_birth); 
         
             let hash = null;
         
-            if (password !== null) {
+            if (password !== null && password !== undefined) {
                 const salt = bcryptjs.genSaltSync(Number(saltRounds));
                 hash = bcryptjs.hashSync(password, salt);
             }
         
-            const updateQuery = password !== null
+            const updateQuery = (password !== null && password !== undefined)
                 ? "UPDATE account SET email = ?, first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, password = ?, account_type = ? WHERE id = ?"
                 : "UPDATE account SET email = ?, first_name = ?, middle_name = ?, last_name = ?, date_of_birth = ?, account_type = ? WHERE id = ?";
         
-            const updateParams = password !== null
+            const updateParams = (password !== null && password !== undefined)
                 ? [email, first_name, middle_name, last_name, formattedDate, hash, account_type, id]
                 : [email, first_name, middle_name, last_name, formattedDate, account_type, id];
         
