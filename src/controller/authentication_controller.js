@@ -14,6 +14,7 @@ const accountAuth = async (req, res) => {
             res.sendStatus(500);
             return;
         }
+        const id = rows[0].id;
         const first_name = rows[0].first_name;
         const middle_name = rows[0].middle_name;
         const last_name  = rows[0].last_name;
@@ -22,7 +23,7 @@ const accountAuth = async (req, res) => {
         const isPasswordTrue = await bcryptjs.compare(password, rows[0].password);
         if (isPasswordTrue) {
             const token = encodeToken("id", rows[0].id);
-            res.json({ token, email, first_name, middle_name, last_name, account_type });
+            res.json({ token, id, email, first_name, middle_name, last_name, account_type });
             req.session.user = {
                 id: rows[0].id,
                 email: email
