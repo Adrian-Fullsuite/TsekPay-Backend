@@ -4,10 +4,10 @@ import checkAuthorization from "../utils/authorization.js";
 
 const createCompany = (req, res) => {
   if (checkAuthorization(req.headers)) {
-    const { account_id, name, logo, address } = req.body;
+    const { account_id, company_name, address, logo } = req.body;
     db.query(
-      "INSERT INTO company(account_id, name, logo, address) VALUES(?, ?, ?, ?)",
-      [account_id, name, logo, address],
+      "INSERT INTO company(account_id, company_name, address, logo) VALUES(?, ?, ?, ?)",
+      [account_id, company_name, address, logo],
       (error, response) => {
         if (error) {
           console.error(error);
@@ -24,9 +24,12 @@ const createCompany = (req, res) => {
 
 const readCompanyAll = async (req, res) => {
   if (checkAuthorization(req.headers)) {
-    db.query("SELECT * FROM company", (error, result) => {
+    const {id} = req.params;
+
+    db.query("SELECT * FROM company WHERE account_id = ?",
+    [id],
+    (error, result) => {
       const rows = result;
-      console.log(rows);
       if (rows) {
         //res.sendStatus(200);
         res.json({ rows });
@@ -64,11 +67,11 @@ const readCompanyInfo = async (req, res) => {
 
 const updateCompany = (req, res) => {
   if (checkAuthorization(req.headers)) {
-    const { account_id, name, logo, address } = req.body;
+    const { account_id, company_name, logo, address } = req.body;
     const { id } = req.params;
     db.query(
-      "UPDATE company SET account_id = ?, name = ?, logo = ?, address = ? WHERE id = ?",
-      [account_id, name, logo, address, id],
+      "UPDATE company SET account_id = ?, company_name = ?, logo = ?, address = ? WHERE id = ?",
+      [account_id, company_name, logo, address, id],
       (error, result) => {
         if (error) {
           console.error(error);
