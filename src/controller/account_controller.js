@@ -1,6 +1,5 @@
 import bcryptjs from "bcryptjs";
 import db from "../database/db.js";
-import { sanitizeObject } from "../utils/sanitize.js";
 import checkAuthorization from "../utils/authorization.js";
 
 const createAccount = (req, res) => {
@@ -46,22 +45,6 @@ const readAccountAll = async (req, res) => {
         });
     } else {
       res.sendStatus(401);
-    }
-};
-
-const readAccountInfo = (req, res) => {
-    if (checkAuthorization(req.headers)) {
-        const { id } = req.params;
-        db.query("SELECT * FROM account WHERE id = ?", [id], (error, results, fields) => {
-            const rows = results;
-            if (sanitizeObject(rows)) {
-                res.sendStatus(200);
-            } else {
-                res.sendStatus(500);
-            }
-        });
-    } else {
-        res.sendStatus(401);
     }
 };
 
@@ -131,4 +114,4 @@ const deleteAccount = (req, res) => {
     }
 };
 
-export {createAccount, readAccountAll, readAccountInfo, updateAccount, deleteAccount};
+export {createAccount, readAccountAll, updateAccount, deleteAccount};

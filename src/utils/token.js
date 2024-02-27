@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 const encodeToken = (key, value) => {
   const token = jwt.sign({ [key]: value }, process.env.SECRET_KEY, {
-    expiresIn: "6h",
+    expiresIn: "7d",
   });
   return token;
 };
