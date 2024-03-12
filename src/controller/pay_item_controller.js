@@ -40,6 +40,25 @@ const readPayItemAll = async (req, res) => {
   }
 };
 
+const readPayItemAll2 = async (req, res) => {
+  if (checkAuthorization(req.headers)) {
+    const {account_id} = req.params;
+
+    db.query("SELECT * FROM `company` INNER JOIN `pay_item` ON `company`.`id` = `pay_item`.`company_id` WHERE `company`.`account_id` = ?",
+    [account_id],
+    (error, result) => {
+      const rows = result;
+      if (rows) {
+        res.json({ rows });
+      } else {
+        res.sendStatus(500);
+      }
+    });
+  } else {
+    res.sendStatus(401);
+  }
+};
+
 const updatePayItem = (req, res) => {
   if (checkAuthorization(req.headers)) {
     const { name, category } = req.body;
@@ -80,6 +99,7 @@ const deletePayItem = (req, res) => {
 export {
   createPayItem,
   readPayItemAll,
+  readPayItemAll2,
   updatePayItem,
   deletePayItem,
 };
