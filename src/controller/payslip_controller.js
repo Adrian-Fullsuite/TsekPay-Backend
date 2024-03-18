@@ -4,14 +4,34 @@ import checkAuthorization from "../utils/authorization.js";
 
 const createPayslip = (req, res) => {
     if(checkAuthorization(req.headers)){
-        const { company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout } = req.body;
+        const data = req.body;
+        console.log("Data Received: ", data);
 
-        // Serialize the payables object to a JSON string
-        const serializedPayables = JSON.stringify(payables);
 
+        const dataProcessed = data.map(items => {
+            const { companyID, 'Employee ID': employeeID, 'Last Name': lastName, 'First Name': firstName, 'Middle Name': middleName, Email, Dates, 'Pay Items': payItems, Totals, 'Net Pay': netPay } = items;
+
+            return [
+            companyID,
+            employeeID,
+            lastName,
+            firstName,
+            middleName,
+            Email,
+            netPay,
+            JSON.stringify(Dates),
+            JSON.stringify(payItems),
+            JSON.stringify(Totals)
+            
+            ];
+        });
+
+        console.log("DB DATA: ", dataProcessed);
+
+        const query = 
         db.query(
-            "INSERT INTO payslip (company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [company_id, employee_id, first_name, middle_name, last_name, email, start_date, end_date, payables, total_earnings, total_deductions, net_salary, date_of_payout],
+            `INSERT INTO payslip (company_id, employee_id, last_name, first_name, middle_name, email, net_salary, dates, payables, totals) VALUES ?;`,
+            [dataProcessed],
             (error, response) => {
                 if (error) {
                     console.error(error);
