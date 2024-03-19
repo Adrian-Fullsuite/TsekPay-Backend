@@ -26,8 +26,6 @@ const createPayslip = (req, res) => {
             ];
         });
 
-        console.log("DB DATA: ", dataProcessed);
-
         const query = 
         db.query(
             `INSERT INTO payslip (company_id, employee_id, last_name, first_name, middle_name, email, net_salary, dates, payables, totals) VALUES ?;`,
