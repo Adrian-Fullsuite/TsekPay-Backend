@@ -1,4 +1,5 @@
 import express from "express";
+import uploadMulter from "../utils/multerFileHandler.js";
 import {
   createCompany,
   readCompanyAll,
@@ -8,9 +9,9 @@ import {
 
 const router = express.Router();
 
-router.post("/company", createCompany);
+router.post("/company", uploadMulter.single("logo"), createCompany);
 router.get("/company/view/:id", readCompanyAll);
-router.patch("/company/edit/:id", updateCompany);
+router.patch("/company/edit/:id", uploadMulter.single("logo"), updateCompany);
 router.delete("/company/remove/:id", deleteCompany);
 
 export default router;
