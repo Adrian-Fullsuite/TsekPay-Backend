@@ -10,7 +10,7 @@ import{
 const router = express.Router();
 
 router.post("/payslip", createPayslip);
-router.get("/payslip/view", readPayslipAll);
+router.get("/payslip/view/:company_id", readPayslipAll);
 router.get("/payslip/view/:id", readPayslipInfo);
 router.patch("/payslip/edit/:id", updatePayslip);
 router.delete("/payslip/remove/:id", deletePayslip);

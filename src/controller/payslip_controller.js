@@ -46,11 +46,12 @@ const createPayslip = (req, res) => {
 
 const readPayslipAll = async (req, res) => {
     if (checkAuthorization(req.headers)) {
-        db.query("SELECT * FROM payslip", (error, result) => {
+        const {company_id} = req.params;
+        db.query("SELECT * FROM payslip WHERE company_id = ? ORDER BY created_at DESC", [company_id], (error, result) => {
             const rows = result;
             console.log(rows);
             if (rows) {
-                res.sendStatus(200);
+                res.status(200).json({rows});
             } else {
                 res.sendStatus(500);
             }
