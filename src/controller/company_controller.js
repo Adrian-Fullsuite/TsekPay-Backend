@@ -46,7 +46,7 @@ const createCompany = async (req, res) => {
           console.log("Failed To Upload Image");
         }
       } else {
-        console.log("No Logo");
+        res.sendStatus(400);
       }
     } catch (error) {}
   } else {
@@ -99,6 +99,7 @@ const readCompanyInfo = async (req, res) => {
   }
 };
 
+// add condition for null logo don't update logo
 const updateCompany = async (req, res) => {
   if (checkAuthorization(req.headers)) {
     const { account_id, company_name, tin, address } = req.body;
@@ -123,7 +124,18 @@ const updateCompany = async (req, res) => {
         console.log("Failed To Upload Image");
       }
     } else {
-      console.log("No Logo");
+      db.query(
+        "UPDATE company SET account_id = ?, company_name = ?, tin = ?, address = ? WHERE id = ?",
+        [account_id, company_name, tin, address, id],
+        (error, result) => {
+          if (error) {
+            console.error(error);
+            res.sendStatus(500);
+          } else {
+            res.sendStatus(200);
+          }
+        }
+      );
     }
   } else {
     res.sendStatus(401);
