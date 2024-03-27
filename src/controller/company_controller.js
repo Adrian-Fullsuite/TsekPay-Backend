@@ -38,7 +38,31 @@ const createCompany = async (req, res) => {
                 console.error(error);
                 res.sendStatus(500);
               } else {
-                res.sendStatus(200);
+                const recordID = response.insertId;
+
+                const payItemVal = [
+                  [recordID, "Basic Pay", "Earnings"],
+                  [recordID, "Regular OT", "Earnings"],
+                  [recordID, "Night Differential", "Earnings"],
+                  [recordID, "Payroll Tax", "Deductions"],
+                  [recordID, "SSS", "Deductions"],
+                  [recordID, "PHIC", "Deductions"],
+                  [recordID, "HDMF", "Deductions"],
+                  [recordID, "Company Deductinons", "Deductions"]
+                  ];
+                db.query(
+                  `INSERT INTO pay_item(company_id, name, category) VALUES ?`,
+                  [payItemVal],
+                  (error, response) => {
+                    if (error) {
+                      console.error(error);
+                      res.sendStatus(500);
+                    } else {
+                      console.log("Pay Items Inserted!")
+                      res.sendStatus(200);
+                    }
+                  }
+                );
               }
             }
           );
